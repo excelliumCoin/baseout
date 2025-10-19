@@ -9,7 +9,7 @@ import { Breakout } from '../../components/Breakout';
 import { HIGH_SCORES_ABI, HIGH_SCORES_ADDR } from '../../lib/contract';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
-// 👇 burada asla "as any" YOK. Global tipi types/farcaster.d.ts veriyor.
+
 const isMiniEnv = () =>
   typeof window !== 'undefined' && !!window.farcaster?.wallet;
 
