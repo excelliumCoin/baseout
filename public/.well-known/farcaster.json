@@ -2,9 +2,9 @@
   "miniapp": {
     "version": "1",
     "name": "Breakout (Base)",
-    "homeUrl": "https://YOUR_DOMAIN/mini",
-    "iconUrl": "https://YOUR_DOMAIN/icon-1024.png",
-    "splashImageUrl": "https://YOUR_DOMAIN/icon-200.png",
+    "homeUrl": "https://baseout.vercel.app/mini",
+    "iconUrl": "https://baseout.vercel.app/farcaster-logo.png",
+    "splashImageUrl": "https://baseout.vercel.app/farcaster-logo.png",
     "splashBackgroundColor": "#0b0f1a",
     "primaryCategory": "games",
     "tags": ["base", "breakout", "game"],
