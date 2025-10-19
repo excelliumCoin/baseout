@@ -99,13 +99,14 @@ export default function MiniAppPage() {
   return (
     <QueryClientProvider client={queryClient}>
       <WagmiProvider config={config}>
-        <main className="min-h-dvh flex items-center justify-center p-4">
-          <div className="w-[360px]">
-            <h1 className="text-xl font-semibold mb-2">Breakout (Base)</h1>
-            <Breakout onGameOver={(s) => setScore(s)} />
-            <MintBar score={score} />
-          </div>
-        </main>
+<main className="min-h-dvh flex items-center justify-center p-4">
+  <div className="w-[360px]">
+    <h1 className="text-xl font-semibold mb-2">Breakout (Base)</h1>
+    <Breakout onGameOver={(s) => setScore(s)} />
+    <MintBar score={score} />
+  </div>
+</main>
+
       </WagmiProvider>
     </QueryClientProvider>
   );
