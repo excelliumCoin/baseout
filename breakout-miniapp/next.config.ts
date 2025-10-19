@@ -1,9 +1,9 @@
-import type { NextConfig } from 'next'
+// next.config.ts
+import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
-  eslint: {
-    ignoreDuringBuilds: true, // prod build'te lint hatalarını bloklama
-  },
-}
-export default nextConfig
+  eslint: { ignoreDuringBuilds: true }, // geçici
+};
+
+export default nextConfig;
