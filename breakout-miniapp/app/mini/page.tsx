@@ -1,9 +1,7 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
 import { sdk } from '@farcaster/miniapp-sdk';
-import {
-  WagmiProvider, http, useAccount, useWriteContract,
-} from 'wagmi';
+import { WagmiProvider, http, useAccount, useWriteContract } from 'wagmi';
 import { base } from 'wagmi/chains';
 import { farcasterMiniApp as miniAppConnector } from '@farcaster/miniapp-wagmi-connector';
 import { createConfig } from 'wagmi';
@@ -11,13 +9,14 @@ import { Breakout } from '../../components/Breakout';
 import { HIGH_SCORES_ABI, HIGH_SCORES_ADDR } from '../../lib/contract';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
+// 👇 burada asla "as any" YOK. Global tipi types/farcaster.d.ts veriyor.
 const isMiniEnv = () =>
   typeof window !== 'undefined' && !!window.farcaster?.wallet;
 
 const config = createConfig({
   chains: [base],
   transports: { [base.id]: http() },
-  connectors: [miniAppConnector()], // ⬅️ sadece Farcaster connector
+  connectors: [miniAppConnector()],
 });
 
 function MintBar({ score }: { score: number }) {
@@ -28,26 +27,21 @@ function MintBar({ score }: { score: number }) {
   const canSubmit = isConnected && score > 0;
 
   const submit = async () => {
-    try {
-      const hash = await writeContractAsync({
-        abi: HIGH_SCORES_ABI,
-        address: HIGH_SCORES_ADDR,
-        functionName: 'submitScore',
-        args: [BigInt(score)],
-        chainId: base.id,
-      });
-      setTxHash(hash);
-    } catch (e) {
-      console.error(e);
-      alert('İşlem gönderilemedi. Lütfen tekrar deneyin.');
-    }
+    const hash = await writeContractAsync({
+      abi: HIGH_SCORES_ABI,
+      address: HIGH_SCORES_ADDR,
+      functionName: 'submitScore',
+      args: [BigInt(score)],
+      chainId: base.id,
+    });
+    setTxHash(hash);
   };
 
   return (
     <div className="mt-3 flex items-center gap-3 text-sm">
       <div className="opacity-80">
         {isConnected
-          ? `Bağlı: ${address?.slice(0,6)}…${address?.slice(-4)}`
+          ? `Bağlı: ${address?.slice(0, 6)}…${address?.slice(-4)}`
           : 'Mini App cüzdanı bağlanıyor…'}
       </div>
       <button
@@ -58,7 +52,12 @@ function MintBar({ score }: { score: number }) {
         {isPending ? 'Gönderiliyor…' : 'Skoru Kaydet (Base)'}
       </button>
       {txHash && (
-        <a className="underline" href={`https://basescan.org/tx/${txHash}`} target="_blank" rel="noreferrer">
+        <a
+          className="underline"
+          href={`https://basescan.org/tx/${txHash}`}
+          target="_blank"
+          rel="noreferrer"
+        >
           Tx
         </a>
       )}
@@ -76,12 +75,10 @@ export default function MiniAppPage() {
     setMounted(true);
     if (!readyOnce.current) {
       readyOnce.current = true;
-      // Mini App splash’ını kapat
       sdk.actions.ready().catch(() => {});
     }
   }, []);
 
-  // Mini App dışında açılırsa uyarı göster
   if (mounted && !isMiniEnv()) {
     return (
       <main className="min-h-dvh flex items-center justify-center p-6">
@@ -99,14 +96,20 @@ export default function MiniAppPage() {
   return (
     <QueryClientProvider client={queryClient}>
       <WagmiProvider config={config}>
-<main className="min-h-dvh flex items-center justify-center p-4">
-  <div className="w-[360px]">
-    <h1 className="text-xl font-semibold mb-2">Breakout (Base)</h1>
-    <Breakout onGameOver={(s) => setScore(s)} />
-    <MintBar score={score} />
-  </div>
-</main>
-
+        <main className="min-h-dvh flex items-center justify-center p-4">
+          <div className="w-[360px]">
+            <div className="flex items-center justify-center mb-3">
+              <img
+                src="/farcaster-logo.png"
+                alt="Farcaster Logo"
+                className="w-10 h-10 mr-2 rounded-full bg-white/10 p-1"
+              />
+              <h1 className="text-xl font-semibold">Breakout (Base)</h1>
+            </div>
+            <Breakout onGameOver={(s) => setScore(s)} />
+            <MintBar score={score} />
+          </div>
+        </main>
       </WagmiProvider>
     </QueryClientProvider>
   );
