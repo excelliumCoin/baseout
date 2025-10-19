@@ -6,12 +6,12 @@ export function Breakout({ onGameOver }: { onGameOver: (score: number) => void }
   const [running, setRunning] = useState(false);
 
   // React UI için state, oyun döngüsü için ref — her ikisini de güncelleyeceğiz
-  const [score, _setScore] = useState(0);
-  const scoreRef = useRef(0);
-  const setScore = (v: number) => {
-    scoreRef.current = v;
-    _setScore(v);
-  };
+const [, setScoreState] = useState(0); // ilk elemanı atla
+const scoreRef = useRef(0);
+const setScore = (v: number) => {
+  scoreRef.current = v;
+  setScoreState(v);
+};
 
   useEffect(() => {
     if (!running) return;
