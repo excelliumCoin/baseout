@@ -9,7 +9,6 @@ import { Breakout } from '../../components/Breakout';
 import { HIGH_SCORES_ABI, HIGH_SCORES_ADDR } from '../../lib/contract';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
-
 const isMiniEnv = () =>
   typeof window !== 'undefined' && !!window.farcaster?.wallet;
 
@@ -41,15 +40,15 @@ function MintBar({ score }: { score: number }) {
     <div className="mt-3 flex items-center gap-3 text-sm">
       <div className="opacity-80">
         {isConnected
-          ? `Bağlı: ${address?.slice(0, 6)}…${address?.slice(-4)}`
-          : 'Mini App cüzdanı bağlanıyor…'}
+          ? `Connected: ${address?.slice(0, 6)}…${address?.slice(-4)}`
+          : 'Connecting Farcaster wallet…'}
       </div>
       <button
         disabled={!canSubmit || isPending}
         onClick={submit}
         className="px-3 py-1.5 rounded-lg bg-white/10 disabled:opacity-40"
       >
-        {isPending ? 'Gönderiliyor…' : 'Skoru Kaydet (Base)'}
+        {isPending ? 'Submitting…' : 'Save Score (Base)'}
       </button>
       {txHash && (
         <a
@@ -85,8 +84,7 @@ export default function MiniAppPage() {
         <div className="max-w-sm text-center space-y-3">
           <h1 className="text-xl font-semibold">Breakout (Base)</h1>
           <p className="opacity-80">
-            Bu uygulama yalnızca <b>Farcaster Mini App</b> olarak çalışır.
-            Lütfen Warpcast içinde açın.
+            This app runs only as a <b>Farcaster Mini App</b>. Please open it inside Warpcast.
           </p>
         </div>
       </main>
