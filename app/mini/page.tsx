@@ -96,14 +96,9 @@ export default function MiniAppPage() {
       <WagmiProvider config={config}>
         <main className="min-h-dvh flex items-center justify-center p-4">
           <div className="w-[360px]">
-            <div className="flex items-center justify-center mb-3">
-              <img
-                src="/farcaster-logo.png"
-                alt="Farcaster Logo"
-                className="w-10 h-10 mr-2 rounded-full bg-white/10 p-1"
-              />
-              <h1 className="text-xl font-semibold">Breakout (Base)</h1>
-            </div>
+<div className="flex items-center justify-center mb-3">
+  <h1 className="text-xl font-semibold">Breakout (Base)</h1>
+</div>
             <Breakout onGameOver={(s) => setScore(s)} />
             <MintBar score={score} />
           </div>
