@@ -1,3 +1,4 @@
+// types/farcaster.d.ts
 export {};
 
 declare global {
