@@ -1,20 +1,20 @@
 {
   "miniapp": {
     "version": "1",
-    "name": "Breakout (Base)",
+    "name": "Baseout on Base",
     "homeUrl": "https://baseout.vercel.app/mini",
     "iconUrl": "https://baseout.vercel.app/farcaster-logo.png",
     "splashImageUrl": "https://baseout.vercel.app/farcaster-logo.png",
     "splashBackgroundColor": "#0b0f1a",
     "primaryCategory": "games",
-    "tags": ["base", "breakout", "game"],
+    "tags": ["base", "baseout", "game"],
     "requiredChains": ["eip155:8453"],
     "requiredCapabilities": [
       "actions.ready",
       "wallet.getEthereumProvider"
     ],
-    "description": "Classic Breakout inside Farcaster. Save on-chain high scores on Base.",
-    "tagline": "Break blocks. Set records."
+    "description": "Classic Baseout inside Farcaster. Save on-chain high scores on Base.",
+    "tagline": "Base blocks. Set records."
   },
   "accountAssociation": {
     "header": "eyJmaWQiOjI5MDUzOCwidHlwZSI6ImF1dGgiLCJrZXkiOiIweDU2QkYzMmY2MjE1NUQzN2Q4NzhiNUQ0NDY0MTRkMTIwMzc5MmMzN0EifQ",
