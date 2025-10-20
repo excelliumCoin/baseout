@@ -143,7 +143,7 @@ export default function MiniAppPage() {
         <main className="min-h-dvh flex items-center justify-center p-4">
           <div className="w-[360px]">
             <div className="flex items-center justify-center mb-3">
-              <h1 className="text-xl font-semibold">Breakout (Base)</h1>
+              <h1 className="text-xl font-semibold">Baseout on Base</h1>
             </div>
             <Breakout onGameOver={(s) => setScore(s)} />
             <MintBar score={score} />
