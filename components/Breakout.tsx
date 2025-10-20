@@ -27,30 +27,67 @@ export function Breakout({ onGameOver }: { onGameOver: (score: number) => void }
     for (let r=0;r<rows;r++) for (let c=0;c<cols;c++)
       bricks.push({x:offx+c*(bw+pad), y:offy+r*(bh+pad), alive:true});
 
+    // --- Controls: Keyboard + Pointer (touch/mouse drag) ---
     const key = { left:false, right:false };
     const down = (e: KeyboardEvent) => { if (e.key==='ArrowLeft') key.left=true; if (e.key==='ArrowRight') key.right=true; };
     const up   = (e: KeyboardEvent) => { if (e.key==='ArrowLeft') key.left=false; if (e.key==='ArrowRight') key.right=false; };
-    window.addEventListener('keydown', down); window.addEventListener('keyup', up);
+    window.addEventListener('keydown', down);
+    window.addEventListener('keyup', up);
 
+    // touch/mouse drag: keep paddle under the finger
+    let dragging = false;
+    // prevent browser from scrolling while dragging on mobile
+    canvas.style.touchAction = 'none';
+
+    const clientXToCanvasX = (clientX: number) => {
+      const rect = canvas.getBoundingClientRect();
+      return clientX - rect.left;
+    };
+    const placePaddleTo = (x: number) => {
+      paddle.x = Math.max(0, Math.min(W - paddle.w, x - paddle.w / 2));
+    };
+
+    const onPointerDown = (e: PointerEvent) => {
+      dragging = true;
+      placePaddleTo(clientXToCanvasX(e.clientX));
+    };
+    const onPointerMove = (e: PointerEvent) => {
+      if (!dragging) return;
+      placePaddleTo(clientXToCanvasX(e.clientX));
+    };
+    const onPointerUp = () => { dragging = false; };
+
+    canvas.addEventListener('pointerdown', onPointerDown);
+    window.addEventListener('pointermove', onPointerMove);
+    window.addEventListener('pointerup', onPointerUp);
+
+    // --- Game Loop ---
     function loop() {
       anim = requestAnimationFrame(loop);
       ctx.fillStyle = '#0b0f1a'; ctx.fillRect(0,0,W,H);
 
+      // keyboard movement (drag zaten paddle.x'i ayarlıyor)
       if (key.left) paddle.x -= paddle.speed;
       if (key.right) paddle.x += paddle.speed;
       paddle.x = Math.max(0, Math.min(W-paddle.w, paddle.x));
-      ctx.fillStyle = '#ffffff'; ctx.fillRect(paddle.x, paddle.y, paddle.w, paddle.h);
 
+      // paddle
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(paddle.x, paddle.y, paddle.w, paddle.h);
+
+      // ball
       ball.x += ball.vx; ball.y += ball.vy;
       if (ball.x < ball.r || ball.x > W - ball.r) ball.vx *= -1;
       if (ball.y < ball.r) ball.vy *= -1;
 
+      // paddle collision
       if (ball.y + ball.r >= paddle.y && ball.x > paddle.x && ball.x < paddle.x + paddle.w && ball.vy > 0) {
         ball.vy *= -1;
         const hit = (ball.x - (paddle.x + paddle.w / 2)) / (paddle.w / 2);
         ball.vx = 4 * hit;
       }
 
+      // bricks
       let aliveCount = 0;
       for (const b of bricks) {
         if (!b.alive) continue;
@@ -66,6 +103,7 @@ export function Breakout({ onGameOver }: { onGameOver: (score: number) => void }
         }
       }
 
+      // next level bonus
       if (aliveCount === 0) {
         for (const b of bricks) b.alive = true;
         setScore(scoreRef.current + 100);
@@ -74,26 +112,36 @@ export function Breakout({ onGameOver }: { onGameOver: (score: number) => void }
         ball.x = W/2; ball.y = H/2;
       }
 
+      // ball draw
       ctx.beginPath(); ctx.arc(ball.x, ball.y, ball.r, 0, Math.PI*2); ctx.fillStyle = '#ffffff'; ctx.fill();
 
+      // bricks draw
       for (const b of bricks) if (b.alive) { ctx.fillStyle = '#7dd3fc'; ctx.fillRect(b.x,b.y,bw,bh); }
 
+      // HUD
       ctx.font = '14px ui-sans-serif'; ctx.fillStyle = '#ffffff';
       ctx.fillText(`Score: ${scoreRef.current}`, 12, 24);
 
+      // lose
       if (ball.y > H + 20) {
         cancelAnimationFrame(anim);
-        window.removeEventListener('keydown', down);
-        window.removeEventListener('keyup', up);
+        cleanup();
         onGameOver(scoreRef.current);
       }
     }
 
+    const cleanup = () => {
+      window.removeEventListener('keydown', down);
+      window.removeEventListener('keyup', up);
+      canvas.removeEventListener('pointerdown', onPointerDown);
+      window.removeEventListener('pointermove', onPointerMove);
+      window.removeEventListener('pointerup', onPointerUp);
+    };
+
     loop();
     return () => {
       cancelAnimationFrame(anim);
-      window.removeEventListener('keydown', down);
-      window.removeEventListener('keyup', up);
+      cleanup();
     };
   }, [running, onGameOver]);
 
@@ -101,7 +149,7 @@ export function Breakout({ onGameOver }: { onGameOver: (score: number) => void }
     <div className="rounded-2xl p-3 bg-white/5">
       <canvas ref={canvasRef} className="rounded-lg block mx-auto" width={360} height={520} />
       <div className="mt-3 flex items-center justify-between">
-        <span className="text-sm opacity-80">Use arrow keys to play</span>
+        <span className="text-sm opacity-80">Use arrow keys or drag to play</span>
         <button onClick={() => setRunning(true)} className="px-3 py-1.5 rounded-lg bg-white/10">Start</button>
       </div>
     </div>
