@@ -128,7 +128,7 @@ export default function MiniAppPage() {
     return (
       <main className="min-h-dvh flex items-center justify-center p-6">
         <div className="max-w-sm text-center space-y-3">
-          <h1 className="text-xl font-semibold">Breakout (Base)</h1>
+          <h1 className="text-xl font-semibold">Baseout on Base</h1>
           <p className="opacity-80">
             This app runs only as a <b>Farcaster Mini App</b>. Please open it inside Warpcast.
           </p>
