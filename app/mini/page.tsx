@@ -1,4 +1,5 @@
 'use client';
+
 import { useEffect, useRef, useState } from 'react';
 import { sdk } from '@farcaster/miniapp-sdk';
 import { WagmiProvider, http, useAccount, useWriteContract } from 'wagmi';
@@ -9,11 +10,11 @@ import { Breakout } from '../../components/Breakout';
 import { HIGH_SCORES_ABI, HIGH_SCORES_ADDR } from '../../lib/contract';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
-const isMiniEnv = () => {
-  if (typeof window === 'undefined') return false;
-  return Boolean(window.farcaster && window.farcaster.wallet);
-};
+// Detect Farcaster Mini App environment
+const isMiniEnv = () =>
+  typeof window !== 'undefined' && !!window.farcaster?.wallet;
 
+// wagmi config — Farcaster connector only (Base mainnet)
 const config = createConfig({
   chains: [base],
   transports: { [base.id]: http() },
@@ -70,17 +71,38 @@ export default function MiniAppPage() {
   const [score, setScore] = useState(0);
   const readyOnce = useRef(false);
   const [queryClient] = useState(() => new QueryClient());
+
+  // UI gating
   const [mounted, setMounted] = useState(false);
+  const [miniEnvReady, setMiniEnvReady] = useState(false);
 
   useEffect(() => {
     setMounted(true);
+
     if (!readyOnce.current) {
       readyOnce.current = true;
+      // Close Warpcast splash
       sdk.actions.ready().catch(() => {});
     }
+
+    // Poll until Farcaster provider is injected
+    let timer: number | undefined;
+    const checkMini = () => {
+      if (isMiniEnv()) {
+        setMiniEnvReady(true);
+      } else {
+        timer = window.setTimeout(checkMini, 300);
+      }
+    };
+    checkMini();
+
+    return () => {
+      if (timer) clearTimeout(timer);
+    };
   }, []);
 
-  if (mounted && !isMiniEnv()) {
+  // If not in Mini App environment, show guidance
+  if (mounted && !miniEnvReady) {
     return (
       <main className="min-h-dvh flex items-center justify-center p-6">
         <div className="max-w-sm text-center space-y-3">
@@ -98,9 +120,9 @@ export default function MiniAppPage() {
       <WagmiProvider config={config}>
         <main className="min-h-dvh flex items-center justify-center p-4">
           <div className="w-[360px]">
-<div className="flex items-center justify-center mb-3">
-  <h1 className="text-xl font-semibold">Breakout (Base)</h1>
-</div>
+            <div className="flex items-center justify-center mb-3">
+              <h1 className="text-xl font-semibold">Breakout (Base)</h1>
+            </div>
             <Breakout onGameOver={(s) => setScore(s)} />
             <MintBar score={score} />
           </div>
