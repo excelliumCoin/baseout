@@ -9,8 +9,10 @@ import { Breakout } from '../../components/Breakout';
 import { HIGH_SCORES_ABI, HIGH_SCORES_ADDR } from '../../lib/contract';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
-const isMiniEnv = () =>
-  typeof window !== 'undefined' && !!window.farcaster?.wallet;
+const isMiniEnv = () => {
+  if (typeof window === 'undefined') return false;
+  return Boolean(window.farcaster && window.farcaster.wallet);
+};
 
 const config = createConfig({
   chains: [base],
