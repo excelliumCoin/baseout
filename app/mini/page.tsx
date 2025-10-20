@@ -10,9 +10,9 @@ import { Breakout } from '../../components/Breakout';
 import { HIGH_SCORES_ABI, HIGH_SCORES_ADDR } from '../../lib/contract';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
-// Detect Farcaster Mini App environment
-const isMiniEnv = () =>
-  typeof window !== 'undefined' && !!window.farcaster?.wallet;
+// --- helpers -----------------------------------------------------
+const isMiniEnvHeuristic = () =>
+  typeof window !== 'undefined' && !!(window as any).farcaster;
 
 // wagmi config — Farcaster connector only (Base mainnet)
 const config = createConfig({
@@ -21,6 +21,7 @@ const config = createConfig({
   connectors: [miniAppConnector()],
 });
 
+// --- UI pieces ---------------------------------------------------
 function MintBar({ score }: { score: number }) {
   const { address, isConnected } = useAccount();
   const { writeContractAsync, isPending } = useWriteContract();
@@ -67,41 +68,62 @@ function MintBar({ score }: { score: number }) {
   );
 }
 
+// --- Page --------------------------------------------------------
 export default function MiniAppPage() {
   const [score, setScore] = useState(0);
   const readyOnce = useRef(false);
   const [queryClient] = useState(() => new QueryClient());
 
-  // UI gating
+  // Gating state
   const [mounted, setMounted] = useState(false);
   const [miniEnvReady, setMiniEnvReady] = useState(false);
 
   useEffect(() => {
     setMounted(true);
 
+    // Close Warpcast splash
     if (!readyOnce.current) {
       readyOnce.current = true;
-      // Close Warpcast splash
       sdk.actions.ready().catch(() => {});
     }
 
-    // Poll until Farcaster provider is injected
+    // Robust detection: try SDK to get Ethereum provider
+    let cancelled = false;
     let timer: number | undefined;
-    const checkMini = () => {
-      if (isMiniEnv()) {
+
+    const tryDetect = async () => {
+      try {
+        // If SDK gives us a provider, we're in Mini App
+        const provider = await sdk.wallet.getEthereumProvider();
+        if (!cancelled && provider) {
+          setMiniEnvReady(true);
+          return;
+        }
+      } catch {
+        // ignore; will retry
+      }
+
+      // Fallback heuristic also allowed (covers some builds)
+      if (!cancelled && isMiniEnvHeuristic()) {
         setMiniEnvReady(true);
-      } else {
-        timer = window.setTimeout(checkMini, 300);
+        return;
+      }
+
+      // Retry after a short delay
+      if (!cancelled) {
+        timer = window.setTimeout(tryDetect, 400);
       }
     };
-    checkMini();
+
+    tryDetect();
 
     return () => {
+      cancelled = true;
       if (timer) clearTimeout(timer);
     };
   }, []);
 
-  // If not in Mini App environment, show guidance
+  // If not in Mini App environment yet, show guidance
   if (mounted && !miniEnvReady) {
     return (
       <main className="min-h-dvh flex items-center justify-center p-6">
